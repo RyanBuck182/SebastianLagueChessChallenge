@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class TablePacker
-{
+public class TablePacker {
 	int[] mg_pawn_table = {
 		0,   0,   0,   0,   0,   0,  0,   0,
 		98, 134,  61,  95,  68, 126, 34, -11,
@@ -86,8 +85,7 @@ public class TablePacker
 	};
 	*/
 
-	public void packAndOutputAll()
-	{
+	public void packAndOutputAll() {
 		halveTable(mg_pawn_table);
 		halveTable(mg_knight_table);
 		halveTable(mg_bishop_table);
@@ -113,14 +111,12 @@ public class TablePacker
 		Console.Write(output + '\n');
 	}
 
-	private void halveTable(int[] unpackedTable)
-	{
+	private void halveTable(int[] unpackedTable) {
 		for (int i = 0; i < unpackedTable.Length; i++)
 			unpackedTable[i] = unpackedTable[i] / 2;
 	}
 
-	private string formatTable(ulong[] packedTable)
-	{
+	private string formatTable(ulong[] packedTable) {
 		string formattedTable = "{ ";
 		for (int i = 0; i < packedTable.Length; i++)
 			formattedTable += "0x" + Convert.ToString((long)packedTable[i], 16) + ", ";
@@ -131,12 +127,10 @@ public class TablePacker
 	private UInt64[] packTable(int[] unpackedTable) {
 		UInt64[] packedTable = new UInt64[8];
 		
-		for (int i = 0; i < 8; i++)
-		{
+		for (int i = 0; i < 8; i++) {
 			UInt64 packedRow = 0;
 
-			for (int j = 0; j < 8; j++)
-			{
+			for (int j = 0; j < 8; j++) {
 				byte packedSquare = (byte)unpackedTable[i * 8 + j];
 				packedRow |= (UInt64)packedSquare << (56 - (j * 8));
 			}
@@ -147,14 +141,11 @@ public class TablePacker
 		return packedTable;
 	}
 
-	private int[] unpackTable(UInt64[] packedTable)
-	{
+	private int[] unpackTable(UInt64[] packedTable) {
 		int[] unpackedTable = new int[64];
 
-		for (int i = 0; i < 8; i++)
-		{
-			for (int j = 0; j < 8; j++)
-			{
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
 				int unpackedSquare = (sbyte)(byte.MaxValue & packedTable[i] >> (56 - (j * 8)));
 				unpackedTable[i * 8 + j] = unpackedSquare;
 			}
@@ -164,18 +155,15 @@ public class TablePacker
 	}
 
 	// To assist with debugging.
-	private string ConvertByteToBinary(byte num)
-	{
+	private string ConvertByteToBinary(byte num) {
 		return Convert.ToString(num, 2).PadLeft(8, '0');
 	}
 
-	private string ConvertIntToBinary(int num)
-	{
+	private string ConvertIntToBinary(int num) {
 		return Convert.ToString(num, 2).PadLeft(32, '0');
 	}
 
-	private string ConvertUInt64ToBinary(UInt64 num)
-	{
+	private string ConvertUInt64ToBinary(UInt64 num) {
 		return Convert.ToString((long)num, 2).PadLeft(64, '0');
 	}
 }
