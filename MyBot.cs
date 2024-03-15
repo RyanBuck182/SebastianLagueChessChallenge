@@ -6,11 +6,11 @@ using System.Collections.Specialized;
 using System.Linq;
 
 //TO DO NEXT!!!!!!!!!!!
-//Implement tapered evaluation using the endgame pesto table
+//Quiescence Search!!!!
 //Look into transposition table
-//Quiescence Search
 //Timer stuff
-//Avoid draw by repetition
+//Iterative deepening
+//Implement tapered evaluation & using the endgame pesto table
 public class MyBot : IChessBot {
     // Pawn, Knight, Bishop, Rook, Queen, King
     readonly int[] PIECE_VALUES = { 1000, 3000, 3000, 5000, 9000, 0 };
@@ -41,17 +41,25 @@ public class MyBot : IChessBot {
         int searchDepth = 5;
 
         int Search(int depth, int alpha, int beta, bool first) {
-            if (depth == 0) {
-                return Evaluate();
-            }
+            //Check for repetition (avoid draw by threefold repetition)
+            if (!first && board.IsRepeatedPosition())
+                return 0;
 
+            //Check extension (keep searching if position has the king in check)
+            if (board.IsInCheck())
+                depth++;
+
+            if (depth == 0)
+                return Evaluate();
+
+            //Ordering moves (helps with alpha beta search)
             var moves = board.GetLegalMoves().OrderByDescending(move => move.IsCapture ? 10 * (int)move.MovePieceType - (int)move.CapturePieceType
                                                                       : move.IsPromotion ? 5
                                                                       : 0);
 
             if (!moves.Any()) {
                 if (board.IsInCheck())
-                    return 2147483647;
+                    return -2147483600 - depth;
                 return 0;
             }
 
@@ -61,6 +69,7 @@ public class MyBot : IChessBot {
                 board.UndoMove(move);
                 if (score >= beta)
                     return beta;
+
                 if (score > alpha) {
                     alpha = score;
                     if (first) bestMove = move;
@@ -90,9 +99,6 @@ public class MyBot : IChessBot {
 
             if (board.IsInCheck())
                 score += 700;
-
-            if (board.IsInCheckmate())
-                score += 2000000000;
         }
 
         return score;
