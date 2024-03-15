@@ -59,7 +59,6 @@ public class MyBot : IChessBot {
                 board.MakeMove(move);
                 int score = -Search(depth - 1, -beta, -alpha, false);
                 board.UndoMove(move);
-                if (first) Console.WriteLine(beta + " | " + score);
                 if (score >= beta)
                     return beta;
                 if (score > alpha) {
