@@ -25,31 +25,31 @@ public class MyBot : IChessBot {
         { 0xe00b08f9e4ef0106, 0xe00f6fdfcfeedf2, 0xfc0c01f8f6030bf5, 0xf8f6faf3f1f4f9ee, 0xe800f3ede9eaf0e7, 0xf9f9f5e9eaf1f9f3, 0x3fce0ebf80404, 0xf91206e504f20c07, },
     };
 
-	// PROBABLY REMOVE THIS METHOD LATER (for token space)
-	private int getPositionScore(int type, Square square) {
-		return 4 * (sbyte)(11111111 & PESTO_TABLES[type, 7 - square.Rank] >> (56 - square.File * 8));
+    // PROBABLY REMOVE THIS METHOD LATER (for token space)
+    private int getPositionScore(int type, Square square) {
+        return 4 * (sbyte)(11111111 & PESTO_TABLES[type, 7 - square.Rank] >> (56 - square.File * 8));
     }
 
-	Board board;
+    Board board;
     Timer timer;
 
     public Move Think(Board boardOriginal, Timer timerOriginal) {
         board = boardOriginal;
         timer = timerOriginal;
 
-		Move bestMove = default;
+        Move bestMove = default;
         int searchDepth = 5;
 
-		int Search(int depth, int alpha, int beta, bool first) {
-			if (depth == 0) {
-				return Evaluate();
-			}
+        int Search(int depth, int alpha, int beta, bool first) {
+            if (depth == 0) {
+                return Evaluate();
+            }
 
             var moves = board.GetLegalMoves().OrderByDescending(move => move.IsCapture ? 10 * (int)move.MovePieceType - (int)move.CapturePieceType
                                                                       : move.IsPromotion ? 5
                                                                       : 0);
 
-			if (!moves.Any()) {
+            if (!moves.Any()) {
                 if (board.IsInCheck())
                     return 2147483647;
                 return 0;
@@ -57,19 +57,19 @@ public class MyBot : IChessBot {
 
             foreach (Move move in moves) {
                 board.MakeMove(move);
-				int score = -Search(depth - 1, -beta, -alpha, false);
-				board.UndoMove(move);
-				if (first) Console.WriteLine(beta + " | " + score);
-				if (score >= beta)
-					return beta;
+                int score = -Search(depth - 1, -beta, -alpha, false);
+                board.UndoMove(move);
+                if (first) Console.WriteLine(beta + " | " + score);
+                if (score >= beta)
+                    return beta;
                 if (score > alpha) {
                     alpha = score;
                     if (first) bestMove = move;
                 }
-			}
+            }
 
-			return alpha;
-		}
+            return alpha;
+        }
         Search(searchDepth, -2147483647, 2147483647, true);
 
         return bestMove;
@@ -77,24 +77,24 @@ public class MyBot : IChessBot {
 
     private int Evaluate() {
         int score = 0;
-        
+
         foreach (bool isWhite in new[] { !board.IsWhiteToMove, board.IsWhiteToMove }) {
             score = -score;
 
-			for (int i = 0; ++i < 7;) {
-				PieceList pieces = board.GetPieceList((PieceType)i, isWhite);
-				foreach (Piece piece in pieces) {
-				 	if (!piece.IsNull)
-						score += PIECE_VALUES[i - 1] + getPositionScore(i - 1, new Square(isWhite ? piece.Square.Index : piece.Square.Index ^ 56));
-				}
-			}
+            for (int i = 0; ++i < 7;) {
+                PieceList pieces = board.GetPieceList((PieceType)i, isWhite);
+                foreach (Piece piece in pieces) {
+                    if (!piece.IsNull)
+                        score += PIECE_VALUES[i - 1] + getPositionScore(i - 1, new Square(isWhite ? piece.Square.Index : piece.Square.Index ^ 56));
+                }
+            }
 
-			if (board.IsInCheck())
-				score += 700;
+            if (board.IsInCheck())
+                score += 700;
 
-			if (board.IsInCheckmate())
-				score += 2000000000;
-		}
+            if (board.IsInCheckmate())
+                score += 2000000000;
+        }
 
         return score;
     }
