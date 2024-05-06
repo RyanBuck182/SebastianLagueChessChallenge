@@ -1,2 +1,2 @@
 # Exclude from github language statistics
-seblague.github.io.html -linguist-vendored
+seblague.github.io.html linguist-vendored
